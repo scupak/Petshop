@@ -1,21 +1,19 @@
-﻿using System;
-using VideoApp.core;
-using VideoApp.core.ApplicationServices;
-using VideoApp.core.DomainServices;
-using VideoApp.Core.Entity;
-using VideoApp.infraStructure.Data;
+﻿using Petshop.core.ApplicationServices;
+using Petshop.core.DomainServices;
+using Petshop.infraStructure.Data;
 
-namespace VideoApp.UI
+namespace Petshop.UI
 {
     class Program
     {
         static void Main(string[] args)
         {
-            IVideoRepository videoRepository = new VideoTable();
-            videoRepository.InitData();
-            IVideoService videoService = new VideoService(videoRepository);
-            Printer print = new Printer(videoService);
+            IPetRepository petRepository = new PetRepository();
+            petRepository.InitData();
+            IPetService petService = new PetService(petRepository);
+            Printer print = new Printer(petService);
             print.PrintMenu();
         }
+
     }
 }

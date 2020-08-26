@@ -1,20 +1,18 @@
-﻿using System;
+﻿using Petshop.core.ApplicationServices;
+using Petshop.Core.Entity;
+using System;
 using System.Collections.Generic;
-using System.Net.Http.Headers;
-using System.Text;
-using VideoApp.core;
-using VideoApp.core.ApplicationServices;
-using VideoApp.Core.Entity;
+using System.Linq;
 
-namespace VideoApp.UI
+namespace Petshop.UI
 {
-  public  class Printer
-  {
-         private IVideoService _videoService;
-         private Video editedVideo; 
-        public Printer(IVideoService videoService)
+    public class Printer
+    {
+        private IPetService _PetService;
+        private Pet editedPet;
+        public Printer(IPetService petService)
         {
-            _videoService = videoService;
+            _PetService = petService;
 
         }
 
@@ -24,18 +22,21 @@ namespace VideoApp.UI
 
             string[] menuItems =
             {
-                "List all videos",
-                "show one video by id",
-                "Add video",
-                "Delete video",
-                "Edit video",
+                "Show list of all Pets",
+                "show one pet by id",
+                "Create a new Pet",
+                "Delete pet",
+                "Update a Pet",
+                "Search Pets by Type",
+                "Sort Pets By Price",
+                "Get 5 cheapest available Pets",
                 "Exit"
 
 
             };
 
             var selection = 0;
-            while (selection != 6)
+            while (selection != 9)
             {
 
 
@@ -47,11 +48,11 @@ namespace VideoApp.UI
                 {
 
                     case 1:
-                        Console.WriteLine("List all videos");
-                        for (int i = 0; i < _videoService.GetVideos().Count; i++)
+                        Console.WriteLine("List all pets");
+                        for (int i = 0; i < _PetService.GetPets().Count; i++)
                         {
                             //Console.WriteLine((i +1) + ":" + menuItems[i]);
-                            Console.WriteLine($"{(i + 1)}:{_videoService.GetVideos()[i]}");
+                            Console.WriteLine($"{(i + 1)}:{ _PetService.GetPets()[i]}");
 
                         }
 
@@ -59,8 +60,8 @@ namespace VideoApp.UI
                         break;
                     case 2:
 
-                        Console.WriteLine("show single video by id");
-                        Console.Write("write id of the video you want:");
+                        Console.WriteLine("show single pet by id");
+                        Console.Write("write id of the pet you want:");
 
                         while (!int.TryParse(Console.ReadLine(), out idSelection))
                         {
@@ -71,16 +72,16 @@ namespace VideoApp.UI
 
                         // int showid = selection;
 
-                        if (_videoService.GetVideoById(idSelection) == null)
+                        if (_PetService.GetPetById(idSelection) == null)
                         {
-                            Console.WriteLine("could not find video");
+                            Console.WriteLine("could not find pet");
                             Console.ReadLine();
                         }
                         else
                         {
 
 
-                            Console.WriteLine(_videoService.GetVideoById(idSelection));
+                            Console.WriteLine(_PetService.GetPetById(idSelection));
                             Console.ReadLine();
                         }
 
@@ -88,62 +89,117 @@ namespace VideoApp.UI
                         break;
                     case 3:
                         // TODO: add input validation
-                        Console.WriteLine("Add video");
-                        Console.WriteLine("Enter title");
-                        string title = Console.ReadLine();
-                        DateTime date;
+                        Console.WriteLine("Add pet");
+                        Console.WriteLine("Enter name");
+                        string name = Console.ReadLine();
+                        DateTime birthDate;
 
-                        Console.WriteLine("Enter release date, day/month/year");
-                        while (!DateTime.TryParse(Console.ReadLine(), out date))
+                        Console.WriteLine("Enter Birthdate, day/month/year");
+                        while (!DateTime.TryParse(Console.ReadLine(), out birthDate))
                         {
                             Console.WriteLine("You need to select a valid date");
 
                         }
 
-                      
+                        DateTime solddate;
+                        Console.WriteLine("Enter solddate, day/month/year");
+                        while (!DateTime.TryParse(Console.ReadLine(), out solddate))
+                        {
+                            Console.WriteLine("You need to select a valid date");
+
+                        }
+
+
 
                         Console.ReadLine();
-                        Console.WriteLine("Enter storyline");
-                        string storyline = Console.ReadLine();
+                        Console.WriteLine("Enter color");
+                        string color = Console.ReadLine();
 
                         Console.ReadLine();
-                        Console.WriteLine("Enter genre");
-                        string action = Console.ReadLine();
+                        Console.WriteLine("Enter previousOwner");
+                        string previousOwner = Console.ReadLine();
 
-                        _videoService.CreateVideo(new Video(title, date, storyline, action));
+                        double price;
+                        while (!double.TryParse(Console.ReadLine(), out price))
+                        {
+                            Console.WriteLine("You need to select a price");
+
+                        }
+
+                        PetType types = PetType.Cat;
+                        while (true)
+                        {
+                            Console.WriteLine("Select a pet type:");
+                            Console.WriteLine("1 cat");
+                            Console.WriteLine("2 dog");
+                            Console.WriteLine("3 goat");
+                            int Typeselection;
+
+                            while (!int.TryParse(Console.ReadLine(), out Typeselection) || (Typeselection < 1 || Typeselection > 3))
+                            {
+                                Console.WriteLine("You need to select an option");
+
+                            }
+
+                            switch (Typeselection)
+                            {
+                                case 1:
+                                    types = PetType.Cat;
+                                    break;
+
+                                case 2:
+                                    types = PetType.Dog;
+                                    break;
+
+                                case 3:
+                                    types = PetType.Goat;
+                                    break;
+
+
+                            }
+                            break;
+
+
+
+                        }
+
+
+
+
+                        _PetService.CreatePet(new Pet(name, birthDate, color, previousOwner, price, types, solddate));
 
                         Console.ReadLine();
                         break;
                     case 4:
                         // TODO: finish creating deletion. 
-                        Console.WriteLine("Delete video");
-                        Console.Write("write the id of the video you wish to delete:");
+                        Console.WriteLine("Delete Pet");
+                        Console.Write("write the id of the pet you wish to delete:");
                         while (!int.TryParse(Console.ReadLine(), out idSelection))
                         {
                             Console.WriteLine("You need to select an id");
 
                         }
 
-                        Console.WriteLine(_videoService.DeleteVideo(idSelection)
-                            ? "video was deleted successfully"
-                            : "video could not be deleted or the wrong id was typed");
+                        Console.WriteLine(_PetService.DeletePet(idSelection)
+                            ? "pet was deleted successfully"
+                            : "pet could not be deleted or the wrong id was typed");
                         Console.ReadLine();
 
                         break;
                     case 5:
-                        Console.WriteLine("Edit video");
-                        Console.Write("write the id of the video you wish to edit:");
+                        Console.WriteLine("Edit pet");
+                        Console.Write("write the id of the pet you wish to edit:");
                         while (!int.TryParse(Console.ReadLine(), out idSelection))
                         {
                             Console.WriteLine("You need to select an id");
 
                         }
 
-                        Video selectedVideo;
-                        selectedVideo = _videoService.GetVideoById(idSelection);
+                        Pet selectedPet;
+                        selectedPet = _PetService.GetPetById(idSelection);
 
 
-                        if (selectedVideo == null)
+                        if (selectedPet == null)
                         {
                             Console.WriteLine("could not find video");
                             Console.ReadLine();
@@ -152,52 +208,56 @@ namespace VideoApp.UI
                         {
 
 
-                            Console.WriteLine(_videoService.GetVideoById(idSelection));
+                            Console.WriteLine(_PetService.GetPetById(idSelection));
                             Console.ReadLine();
-                            Console.WriteLine("Select what part of the video you want to edit");
+                            Console.WriteLine("Select what part of the pet you want to edit");
 
                             string[] updateMenuItems =
                             {
-                                "Edit Title",
-                                "Edit ReleaseDate",
-                                "Edit Storyline",
-                                "Edit Genre",
+                                //string name, DateTime birthdate, string color , string previousOwner,double price, PetType petType, DateTime soldDate
+                                "Edit name",
+                                "Edit birthdate",
+                                "Edit solddate",
+                                "Edit color",
+                                "Edit previousOwner",
+                                "Edit price",
+                                "Edit petType",
                                 "Exit"
                             };
                             var editSelection = 0;
 
-                            while (editSelection != 5)
+                            while (editSelection != 8)
                             {
-                                
+
 
                                 editSelection = ShowMenu(updateMenuItems);
                                 //int editIdSelection;
                                 Console.ReadLine();
 
-                                
+
                                 switch (editSelection)
                                 {
-                                        
+
 
                                     case 1:
-                                        string editTitle;
-                                        Console.WriteLine("Edit Title");
-                                        Console.Write("write new title:");
-                                        editTitle = Console.ReadLine();
+                                        string editName;
+                                        Console.WriteLine("Edit Name");
+                                        Console.Write("write new Name:");
+                                        editName = Console.ReadLine();
 
-                                        while (editTitle == null || editTitle.Length <= 0)
+                                        while (editName == null || editName.Length <= 0)
                                         {
                                             Console.Write("title has to have a length higher then 0:");
-                                            editTitle = Console.ReadLine();
+                                            editName = Console.ReadLine();
                                         }
 
-                                        editedVideo = selectedVideo;
-                                        editedVideo.Title = editTitle;
+                                        editedPet = selectedPet;
+                                        editedPet.Name = editName;
 
-                                        if (_videoService.EditVideo(editedVideo) != null)
+                                        if (_PetService.EditPet(editedPet) != null)
                                         {
                                             Console.WriteLine("the update was successful");
-                                            Console.WriteLine(_videoService.GetVideoById(idSelection)); 
+                                            Console.WriteLine(_PetService.GetPetById(idSelection));
                                             Console.ReadLine();
 
                                         }
@@ -210,54 +270,54 @@ namespace VideoApp.UI
                                         break;
 
                                     case 2:
-                                        DateTime editReleaseDate;
-                                        Console.WriteLine("Edit releasedate");
+                                        DateTime editBirthday;
+                                        Console.WriteLine("Edit Birthday");
 
-                                        Console.WriteLine("Enter release date, day/month/year");
-                                        while (!DateTime.TryParse(Console.ReadLine(), out editReleaseDate))
+                                        Console.WriteLine("Enter Birthday, day/month/year");
+                                        while (!DateTime.TryParse(Console.ReadLine(), out editBirthday))
                                         {
                                             Console.WriteLine("You need to select a valid date");
 
                                         }
 
 
-                                        editedVideo = selectedVideo;
-                                        editedVideo.ReleaseDate = editReleaseDate;
+                                        editedPet = selectedPet;
+                                        editedPet.Birthdate = editBirthday;
 
-                                        if (_videoService.EditVideo(editedVideo) != null)
+                                        if (_PetService.EditPet(editedPet) != null)
                                         {
                                             Console.WriteLine("the update was successful");
-                                            Console.WriteLine(_videoService.GetVideoById(idSelection)); 
+                                            Console.WriteLine(_PetService.GetPetById(idSelection));
                                             Console.ReadLine();
 
                                         }
                                         else
                                         {
-                                            Console.Write("the update was unsuccessful"); 
+                                            Console.Write("the update was unsuccessful");
                                             Console.ReadLine();
                                         }
 
                                         break;
 
                                     case 3:
-                                        string editStoryline;
-                                        Console.WriteLine("Edit Storyline");
-                                        Console.Write("write new Storyline:");
-                                        editStoryline = Console.ReadLine();
+                                        string editColor;
+                                        Console.WriteLine("Edit color");
+                                        Console.Write("write a new color:");
+                                        editColor = Console.ReadLine();
 
-                                        while (editStoryline == null || editStoryline.Length <= 0)
+                                        while (editColor == null || editColor.Length <= 0)
                                         {
-                                            Console.Write("the storyline has to have a length higher then 0:");
-                                            editStoryline = Console.ReadLine();
+                                            Console.Write("the color has to have a length higher then 0:");
+                                            editColor = Console.ReadLine();
                                         }
 
-                                        editedVideo = selectedVideo;
-                                        editedVideo.Storyline = editStoryline;
+                                        editedPet = selectedPet;
+                                        editedPet.Color = editColor;
 
-                                        if (_videoService.EditVideo(editedVideo) != null)
+                                        if (_PetService.EditPet(editedPet) != null)
                                         {
                                             Console.WriteLine("the update was successful");
-                                            Console.WriteLine(_videoService.GetVideoById(idSelection));
+                                            Console.WriteLine(_PetService.GetPetById(idSelection));
                                             Console.ReadLine();
 
                                         }
@@ -270,24 +330,135 @@ namespace VideoApp.UI
                                         break;
 
                                     case 4:
-                                        string editGenre;
-                                        Console.WriteLine("Edit Genre");
-                                        Console.Write("write new Genre:");
-                                        editGenre = Console.ReadLine();
+                                        string editpreviousOwner;
+                                        Console.WriteLine("Edit previousOwner");
+                                        Console.Write("write new previousOwner:");
+                                        editpreviousOwner = Console.ReadLine();
 
-                                        while (editGenre == null || editGenre.Length <= 0)
+                                        while (editpreviousOwner == null || editpreviousOwner.Length <= 0)
                                         {
-                                            Console.Write("the genre has to have a length higher then 0:");
-                                            editGenre = Console.ReadLine();
+                                            Console.Write("the previousOwner has to have a length higher then 0:");
+                                            editpreviousOwner = Console.ReadLine();
                                         }
 
-                                        editedVideo = selectedVideo;
-                                        editedVideo.Genre = editGenre;
+                                        editedPet = selectedPet;
+                                        editedPet.PreviousOwner = editpreviousOwner;
 
-                                        if (_videoService.EditVideo(editedVideo) != null)
+                                        if (_PetService.EditPet(editedPet) != null)
                                         {
                                             Console.WriteLine("the update was successful");
-                                            Console.WriteLine(_videoService.GetVideoById(idSelection));
+                                            Console.WriteLine(_PetService.GetPetById(idSelection));
+                                            Console.ReadLine();
+
+                                        }
+                                        else
+                                        {
+                                            Console.Write("the update was unsuccessful");
+                                            Console.ReadLine();
+                                        }
+
+                                        break;
+
+                                    case 5:
+                                        double editprice;
+                                        Console.WriteLine("Edit price");
+                                        Console.Write("write new price:");
+
+                                        while (!double.TryParse(Console.ReadLine(), out editprice))
+                                        {
+                                            Console.WriteLine("You need to select a price");
+
+                                        }
+
+                                        editedPet = selectedPet;
+                                        editedPet.Price = editprice;
+
+                                        if (_PetService.EditPet(editedPet) != null)
+                                        {
+                                            Console.WriteLine("the update was successful");
+                                            Console.WriteLine(_PetService.GetPetById(idSelection));
+                                            Console.ReadLine();
+
+                                        }
+                                        else
+                                        {
+                                            Console.Write("the update was unsuccessful");
+                                            Console.ReadLine();
+                                        }
+
+                                        break;
+                                    case 6:
+
+                                        PetType Edittypes = PetType.Cat;
+
+                                        Console.WriteLine("Select a pet type:");
+                                        Console.WriteLine("1 cat");
+                                        Console.WriteLine("2 dog");
+                                        Console.WriteLine("3 goat");
+                                        int Typeselection;
+
+                                        while (!int.TryParse(Console.ReadLine(), out Typeselection) ||
+                                               (Typeselection < 1 || Typeselection > 3))
+                                        {
+                                            Console.WriteLine("You need to select an option");
+
+                                        }
+
+                                        switch (Typeselection)
+                                        {
+                                            case 1:
+                                                Edittypes = PetType.Cat;
+                                                break;
+
+                                            case 2:
+                                                Edittypes = PetType.Dog;
+                                                break;
+
+                                            case 3:
+                                                Edittypes = PetType.Goat;
+                                                break;
+
+
+                                        }
+
+
+                                        editedPet = selectedPet;
+                                        editedPet.PetType = Edittypes;
+
+                                        if (_PetService.EditPet(editedPet) != null)
+                                        {
+                                            Console.WriteLine("the update was successful");
+                                            Console.WriteLine(_PetService.GetPetById(idSelection));
+                                            Console.ReadLine();
+
+                                        }
+                                        else
+                                        {
+                                            Console.Write("the update was unsuccessful");
+                                            Console.ReadLine();
+                                        }
+
+                                        break;
+
+                                    case 7:
+                                        DateTime editsoldDate;
+                                        Console.WriteLine("Edit soldDate");
+
+                                        Console.WriteLine("Enter soldDate, day/month/year");
+                                        while (!DateTime.TryParse(Console.ReadLine(), out editsoldDate))
+                                        {
+                                            Console.WriteLine("You need to select a valid date");
+
+                                        }
+
+
+                                        editedPet = selectedPet;
+                                        editedPet.Birthdate = editsoldDate;
+
+                                        if (_PetService.EditPet(editedPet) != null)
+                                        {
+                                            Console.WriteLine("the update was successful");
+                                            Console.WriteLine(_PetService.GetPetById(idSelection));
                                             Console.ReadLine();
 
                                         }
@@ -304,7 +475,7 @@ namespace VideoApp.UI
                                 }
 
 
-                             
+
 
                             }
 
@@ -312,6 +483,92 @@ namespace VideoApp.UI
 
                         break;
                     case 6:
+                        Console.WriteLine("Search Pets by Type");
+                        Console.ReadLine();
+
+                        Console.WriteLine("please select the type of pet you want\n");
+                        Console.WriteLine("1: Dog");
+                        Console.WriteLine("2: Cat");
+                        Console.WriteLine("3: Goat");
+
+                        int searchTypeselection;
+
+                        while (!int.TryParse(Console.ReadLine(), out searchTypeselection) ||
+                               (searchTypeselection < 1 || searchTypeselection > 3))
+                        {
+                            Console.WriteLine("You need to select an option");
+
+                        }
+
+                        List<Pet> pets = _PetService.GetPets();
+                        List<Pet> searchPet;
+
+                        switch (searchTypeselection)
+                        {
+
+                            case 1:
+                                searchPet = pets.FindAll(pet => pet.PetType.Equals(PetType.Dog));
+                                break;
+                            case 2:
+                                searchPet = pets.FindAll(pet => pet.PetType.Equals(PetType.Cat));
+                                break;
+                            default:
+                                searchPet = pets.FindAll(pet => pet.PetType.Equals(PetType.Goat));
+                                break;
+                        }
+
+                        if(searchPet == null || searchPet.Count == 0) {
+                            Console.WriteLine("did not find any pets with that type");
+
+                        }
+
+                        foreach (var pet in searchPet)
+                        {
+                            Console.WriteLine(pet.ToString());
+                        }
+
+                        Console.ReadLine();
+                        break;
+
+                    case 7:
+                        Console.WriteLine("Sort Pets By Price");
+                        Console.ReadLine();
+                        foreach (var pet in _PetService.GetPets().OrderBy(o => o.Price).ToList())
+                        {
+                            Console.WriteLine(pet.ToString());
+                        }
+                        Console.ReadLine();
+
+                        break;
+
+                    case 8:
+                        Console.WriteLine("Get 5 cheapest available Pets");
+                        Console.ReadLine();
+
+                        List<Pet> cheapestPets = _PetService.GetPets().OrderBy(o => o.Price).ToList();
+
+                        if (cheapestPets.Count! < 5)
+                        {
+
+                            for (int i = 0; i < 5; i++)
+                            {
+                                Console.WriteLine(cheapestPets[i]);
+
+                            }
+
+                        }
+                        else
+                        {
+                            foreach (Pet pet in cheapestPets)
+                            {
+                                Console.WriteLine(pet);
+                            }
+
+                        }
+                        Console.ReadLine();
+                        break;
+
+                    case 9:
                         Console.WriteLine("Exit");
                         Console.ReadLine();
                         break;
